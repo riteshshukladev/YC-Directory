@@ -4,7 +4,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <main className="font-work-sans">
+    <main className="font-work-sans rel">
       <NavBar />
       {children}
     </main>
