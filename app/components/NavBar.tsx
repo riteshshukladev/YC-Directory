@@ -1,53 +1,65 @@
 import Link from "next/link";
-import React from "react";
 import Image from "next/image";
-import logoImage from "../../public/logo.png";
 import { auth, signOut, signIn } from "@/auth";
-const NavBar = async () => {
-  const session = await auth();
-  return (
-    <>
-      <header className="px-5 py-3 shadow-sm font-work-sans bg-white">
-        <nav className="flex justify-between items-center">
-          <Link href={"/"} className="">
-            <Image src={logoImage} alt="logo" width={144} height={30}></Image>
-          </Link>
+import { BadgePlus, LogOut } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-          <div className="flex items-center gap-5 cursor-pointer text-black">
-            {session && session.user ? (
-              <>
-                <Link href={"/startup/create"}>
-                  <span>Create</span>
-                </Link>
-                <form
-                  action={async () => {
-                    "use server";
-                    await signOut({ options: { redirect: "/",} });
-                  }}
-                >
-                  <button type="submit">Logout</button>
-                </form>
-                <Link href={`/user/${session?.id}`}>
-                  <span>{session?.user?.name}</span>
-                </Link>
-              </>
-            ) : (
+const Navbar = async () => {
+  const session = await auth();
+
+  return (
+    <header className="px-5 py-3 bg-white shadow-sm font-work-sans">
+      <nav className="flex justify-between items-center">
+        <Link href="/">
+          <Image src="/logo.png" alt="logo" width={144} height={30} />
+        </Link>
+
+        <div className="flex items-center gap-5 text-black">
+          {session && session?.user ? (
+            <>
+              <Link href="/startup/create">
+                <span className="max-sm:hidden">Create</span>
+                <BadgePlus className="size-6 sm:hidden" />
+              </Link>
+
               <form
                 action={async () => {
                   "use server";
-                  await signIn("github");
+
+                  await signOut({ redirectTo: "/" });
                 }}
               >
-                <button type="submit" className="cursor-pointer">
-                  Login
+                <button type="submit">
+                  <span className="max-sm:hidden">Logout</span>
+                  <LogOut className="size-6 sm:hidden text-red-500" />
                 </button>
               </form>
-            )}
-          </div>
-        </nav>
-      </header>
-    </>
+
+              <Link href={`/user/${session?.id}`}>
+                <Avatar className="size-10">
+                  <AvatarImage
+                    src={session?.user?.image || ""}
+                    alt={session?.user?.name || ""}
+                  />
+                  <AvatarFallback>AV</AvatarFallback>
+                </Avatar>
+              </Link>
+            </>
+          ) : (
+            <form
+              action={async () => {
+                "use server";
+
+                await signIn("github");
+              }}
+            >
+              <button type="submit">Login</button>
+            </form>
+          )}
+        </div>
+      </nav>
+    </header>
   );
 };
 
-export default NavBar;
+export default Navbar;
