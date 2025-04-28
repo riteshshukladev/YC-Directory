@@ -9,6 +9,7 @@ import { z } from "zod";
 import { title } from "process";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { createPitch } from "@/lib/actions";
 
 // import { useActionState } from "react";
 const StartupForm = () => {
@@ -30,16 +31,19 @@ const StartupForm = () => {
       setErrors({});
       console.log("Form values:", formValues);
 
-      // if (result.status == "SUCCESS") {
-      //   toast("Success", {
-      //     description: "Your startup has been submitted successfully",
-      //     variant: "default",
-      //   });
-      // }
-      // console.log(formValues);
-      // router.push(`/startup/${result.id}`);
-      // return result;
+      const result = await createPitch(prevState, formData, pitch);
+
+      if (result.status == "SUCCESS") {
+        toast("Success", {
+          description: "Your startup has been submitted successfully",
+          className: "bg-green text-white",
+        });
+      }
+      console.log(formValues);
+      router.push(`/startup/${result._id}`);
+      return result;
     } catch (error: any) {
+      console.error("Error submitting form:", error);
       if (error instanceof z.ZodError) {
         const fieldErrors = error.flatten().fieldErrors;
         setErrors(
@@ -85,7 +89,7 @@ const StartupForm = () => {
 
       <div className="flex flex-col ">
         <label htmlFor="description" className="startup-form_label">
-          Title
+          description
         </label>
         <input
           // type="text"
@@ -149,6 +153,7 @@ const StartupForm = () => {
             disallowedElements: ["style"],
           }}
         />
+        <input type="hidden" name="pitch" value={pitch} />
         {errors.link && <p className="startup-form_error">{errors.link}</p>}
       </div>
 
